@@ -18,23 +18,6 @@ class UploadImage extends Mime2extPDF
     protected string $file_target;
     protected string $file_name;
 
-    private int $max_size = 0;
-    private int $max_width;
-    private int $max_height;
-    protected function MaxWidth(int $width):self{
-        $this->max_width = $width;
-        return $this;
-    }
-    protected function MaxHeight(int $height):self
-    {
-        $this->max_height = $height;
-        return $this;
-    }
-    protected function MaxSize(int $max_size):self
-    {
-        $this->max_size = $max_size*1024;
-        return $this;
-    }
     protected function Upload(): array
     {
         if(! empty($_FILES['files'])) {
