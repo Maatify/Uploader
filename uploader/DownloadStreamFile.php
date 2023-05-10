@@ -10,7 +10,7 @@ namespace Maatify\Uploader;
 
 abstract class DownloadStreamFile
 {
-    protected int $file_path;
+    protected int|string $file_path;
     protected string $file_saved_name = 'doc';
     
     public function DownloadFile(): void
