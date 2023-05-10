@@ -9,20 +9,9 @@
 
 namespace Maatify\Uploader;
 
-class UploadFolderCreate
+abstract class UploadFolderCreate
 {
     protected string $upload_folder;
-
-    private static self $instance;
-
-    public static function obj(): self
-    {
-        if (empty(self::$instance)) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
 
     protected function CreatFolder(): void
     {
