@@ -13,7 +13,7 @@ use Maatify\Uploader\Mime\Mime2extPDF;
 
 class UploadImage extends Mime2extPDF
 {
-    protected int $uploaded_for_id;
+    protected int|string $uploaded_for_id;
     protected string $upload_folder;
     protected string $file_target;
     protected string $file_name;
