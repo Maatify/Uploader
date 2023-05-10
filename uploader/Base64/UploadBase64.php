@@ -14,6 +14,8 @@ use Maatify\Uploader\Mime\Mime2extPDF;
 abstract class UploadBase64 extends Mime2extPDF
 {
     protected int $uploaded_for_id;
+
+    protected string $add_str_to_file_id = '';
     protected string $upload_folder;
     protected string $file_dir;
     protected string $file_name;
@@ -57,7 +59,12 @@ abstract class UploadBase64 extends Mime2extPDF
             }
             if(empty($this->file_name)){
                 $fileName = round(microtime(true) * 1000) . uniqid();
-                $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . uniqid() . '.' . $this->extension;
+                if(!empty($this->add_str_to_file_id)){
+                    $name_start = $this->uploaded_for_id . '_' . $this->add_str_to_file_id;
+                }else{
+                    $name_start = $this->uploaded_for_id;
+                }
+                $file = $name_start . '_' . time() . "_" . $fileName . uniqid() . '.' . $this->extension;
             }else{
                 $file = $this->file_name . '.' . $this->extension;
             }

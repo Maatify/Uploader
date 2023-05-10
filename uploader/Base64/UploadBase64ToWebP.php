@@ -18,7 +18,6 @@ abstract class UploadBase64ToWebP extends UploadBase64
 //            $mime_type = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $this->file_dir);
 //            $extension = $this->mime2extImage($mime_type);
             if(!empty($this->extension)){
-
                 (new WebPConverter())->WebPConvert($this->file_dir);
 //                $check = getimagesize((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_dir)) . '.webp');
                 if(file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_dir)) . '.webp')){
