@@ -1,7 +1,7 @@
 {
     "name": "maatify/uploader",
     "description": "maatify.dev uploader handler, known by our team",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "type": "library",
     "keywords": [
         "PHP",
