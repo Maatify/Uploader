@@ -2,8 +2,8 @@
 /**
  * Created by Maatify.dev
  * User: Maatify.dev
- * Date: 2023-03-30
- * Time: 4:16 AM
+ * Date: 2023-07-04
+ * Time: 8:36 PM
  * https://www.Maatify.dev
  */
 
@@ -22,7 +22,7 @@ class UploadImage extends Mime2extPDF
     {
         if(! empty($_FILES['files'])) {
             //            $extension = strtolower(pathinfo($_FILES["inputFile"]["name"], PATHINFO_EXTENSION));
-            $extension = mime_content_type($_FILES["inputFile"]["name"]);
+            $extension = mime_content_type($_FILES["files"]["name"]);
             if (! empty($extension)) {
                 $extension = $this->mime2extImage($extension); // extract extension from mime type
                 if(empty($extension)){
@@ -39,12 +39,12 @@ class UploadImage extends Mime2extPDF
 
 
                 if (! empty($this->max_size)) {
-                    if ($_FILES["inputFile"]["size"] > $this->max_size * 1024) {
+                    if ($_FILES["files"]["size"] > $this->max_size * 1024) {
                         return $this->ReturnError("your file is too large, cannot be more than $this->max_size MB");
                     }
                 }
 
-                $size = getimagesize($_FILES["inputFile"]["tmp_name"]);
+                $size = getimagesize($_FILES["files"]["tmp_name"]);
                 if (empty($size)) {
                     return $this->ReturnError("your file is not an image");
                 }
@@ -61,7 +61,7 @@ class UploadImage extends Mime2extPDF
                     }
                 }
 
-                move_uploaded_file($_FILES["inputFile"]["tmp_name"], $this->file_target);
+                move_uploaded_file($_FILES["files"]["tmp_name"], $this->file_target);
 
                 return $this->ReturnSuccess($file);
             } else {
