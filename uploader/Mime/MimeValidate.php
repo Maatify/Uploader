@@ -9,7 +9,9 @@
 
 namespace Maatify\Uploader\Mime;
 
-abstract class MimeValidate
+use Maatify\Uploader\UploadFolderCreate;
+
+abstract class MimeValidate extends UploadFolderCreate
 {
     protected int $max_width = 0;
     protected int $max_height = 0;
