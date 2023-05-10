@@ -20,9 +20,9 @@ class UploadImage extends Mime2extPDF
 
     protected function Upload(): array
     {
-        if(! empty($_FILES['files'])) {
-            $extension = mime_content_type($_FILES["files"]["tmp_name"]);
-//            $extension = strtolower(pathinfo($_FILES["files"]["name"], PATHINFO_EXTENSION));
+        if(! empty($_FILES['file'])) {
+            $extension = mime_content_type($_FILES["file"]["tmp_name"]);
+//            $extension = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
             if (! empty($extension)) {
                 $extension = $this->mime2extImage($extension); // extract extension from mime type
                 if(empty($extension)){
@@ -39,12 +39,12 @@ class UploadImage extends Mime2extPDF
 
 
                 if (! empty($this->max_size)) {
-                    if ($_FILES["files"]["size"] > $this->max_size * 1024) {
+                    if ($_FILES["file"]["size"] > $this->max_size * 1024) {
                         return $this->ReturnError("your file is too large, cannot be more than $this->max_size MB");
                     }
                 }
 
-                $size = getimagesize($_FILES["files"]["tmp_name"]);
+                $size = getimagesize($_FILES["file"]["tmp_name"]);
                 if (empty($size)) {
                     return $this->ReturnError("your file is not an image");
                 }
@@ -61,7 +61,7 @@ class UploadImage extends Mime2extPDF
                     }
                 }
 
-                move_uploaded_file($_FILES["files"]["tmp_name"], $this->file_target);
+                move_uploaded_file($_FILES["file"]["tmp_name"], $this->file_target);
 
                 return $this->ReturnSuccess($file);
             } else {
