@@ -13,7 +13,7 @@ abstract class UploadFolderCreate
 {
     protected string $upload_folder;
 
-    protected function CreatFolder(): void
+    protected function CreatUploadFolder(): void
     {
         if (! file_exists($this->upload_folder)) {
             mkdir($this->upload_folder);
