@@ -22,6 +22,8 @@ abstract class UploadBase64 extends Mime2extPDF
     protected int $max_height = 0;
     protected int $max_size = 0;
 
+    protected string $extension;
+
     protected function Upload(): string
     {
         if (empty($_POST['base64_file'])) {
@@ -30,16 +32,19 @@ abstract class UploadBase64 extends Mime2extPDF
         if (is_array($_POST['base64_file'])) {
             Json::Invalid('base64_file');
         }
+        $image_info = getimagesize($_POST['base64_file']);
+        //        $mime_type = (isset($image_info["mime"]) ? explode('/', $image_info["mime"] )[1] : ""); // return png
+        $mime_type = ($image_info["mime"] ?? ""); // return image/png
 
         $_POST['base64_file'] = preg_replace('#^data:image/\w+;base64,#i', '', $_POST['base64_file']);
         $_POST['base64_file'] = preg_replace('#^data:application/pdf;base64,#i', '', $_POST['base64_file']);
         $decoded_file = base64_decode($_POST['base64_file']); // decode the file
-        $mime_type = finfo_buffer(finfo_open(), $decoded_file, FILEINFO_MIME_TYPE); // extract mime type
-        $extension = $this->mime2extImage($mime_type); // extract extension from mime type
-        if(empty($extension)){
-            $extension = $this->mime2extPDF($mime_type); // extract extension from mime type
+//        $mime_type = finfo_buffer(finfo_open(), $decoded_file, FILEINFO_MIME_TYPE); // extract mime type
+        $this->extension = $this->mime2extImage($mime_type); // extract extension from mime type
+        if(empty($this->extension)){
+            $this->extension = $this->mime2extPDF($mime_type); // extract extension from mime type
         }
-        if (!empty($extension)) {
+        if (!empty($this->extension)) {
             $size = getimagesizefromstring($decoded_file);
             if(!empty($this->max_width) && $size[0] > $this->max_width){
                 Json::Incorrect('max_width', 'cannot more than ' . $this->max_width);
@@ -52,9 +57,9 @@ abstract class UploadBase64 extends Mime2extPDF
             }
             if(empty($this->file_name)){
                 $fileName = round(microtime(true) * 1000) . uniqid();
-                $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . uniqid() . '.' . $extension;
+                $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . uniqid() . '.' . $this->extension;
             }else{
-                $file = $this->file_name . '.' . $extension;
+                $file = $this->file_name . '.' . $this->extension;
             }
 
             $this->file_dir = $this->upload_folder . '/' . $file;
