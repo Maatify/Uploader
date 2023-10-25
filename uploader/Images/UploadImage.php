@@ -20,7 +20,7 @@ class UploadImage extends Mime2extPDF
 
     protected function Upload(): array
     {
-        if(! empty($_FILES["file"]) && is_array($_FILES["file"])) {
+        if(! empty($_FILES["file"]) && is_array($_FILES["file"]) && !empty($_FILES["file"]["tmp_name"])) {
             $extension = mime_content_type($_FILES["file"]["tmp_name"]);
 //            $extension = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
             if (! empty($extension)) {
