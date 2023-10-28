@@ -63,22 +63,26 @@ class UploadImage extends Mime2extPDF
                     }
                 }
 
-                set_error_handler(/**
-                 * @throws ErrorException
-                 */ function($errno, $errstr, $errfile, $errline) {
-                    // error was suppressed with the @-operator
-                    if (0 === error_reporting()) {
-                        return false;
+
+
+                if(!file_exists($this->upload_folder)){
+                    set_error_handler(/**
+                     * @throws ErrorException
+                     */ function($errno, $errstr, $errfile, $errline) {
+                        // error was suppressed with the @-operator
+                        if (0 === error_reporting()) {
+                            return false;
+                        }
+
+                        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+                    });
+
+                    try {
+                        mkdir($this->file_target);
+                    } catch (ErrorException $e) {
+                        Logger::RecordLog($e, 'uploader_error');
+                        return $this->ReturnError('Path Not Found');
                     }
-
-                    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-                });
-
-                try {
-                    mkdir($this->file_target);
-                } catch (ErrorException $e) {
-                    Logger::RecordLog($e, 'uploader_error');
-                    return $this->ReturnError('Path Not Found');
                 }
 
                 move_uploaded_file($_FILES["file"]["tmp_name"], $this->file_target);
