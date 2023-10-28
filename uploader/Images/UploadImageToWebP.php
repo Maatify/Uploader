@@ -18,11 +18,16 @@ class UploadImageToWebP extends UploadImage
     {
         $file = parent::Upload();
         if(!empty($file['uploaded'])){
-            (new WebPConverter())->WebPConvert($this->file_target);
-            if(file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')){
-                unlink($this->file_target);
-                $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['image'])) . '.webp';
-                return $this->ReturnSuccess($this->file_target);
+            if(!empty($this->extension) && $this->extension != 'webp') {
+                (new WebPConverter())->WebPConvert($this->file_target);
+                if (file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')) {
+                    unlink($this->file_target);
+                    $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['image'])) . '.webp';
+
+                    return $this->ReturnSuccess($this->file_target);
+                } else {
+                    return $file;
+                }
             }else{
                 return $file;
             }

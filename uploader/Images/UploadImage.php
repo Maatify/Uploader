@@ -20,21 +20,23 @@ class UploadImage extends Mime2extPDF
     protected string $file_target;
     protected string $file_name;
 
+    protected string $extension;
+
     protected function Upload(): array
     {
         if(! empty($_FILES["file"]) && is_array($_FILES["file"]) && !empty($_FILES["file"]["tmp_name"])) {
-            $extension = mime_content_type($_FILES["file"]["tmp_name"]);
+            $this->extension = mime_content_type($_FILES["file"]["tmp_name"]);
 //            $extension = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
-            if (! empty($extension)) {
-                $extension = $this->mime2extImage($extension); // extract extension from mime type
-                if(empty($extension)){
-                    $extension = $this->mime2extPDF($extension); // extract extension from mime type
+            if (! empty($this->extension)) {
+                $this->extension = $this->mime2extImage($this->extension); // extract extension from mime type
+                if(empty($this->extension)){
+                    $this->extension = $this->mime2extPDF($this->extension); // extract extension from mime type
                 }
                 if (empty($this->file_name)) {
                     $fileName = round(microtime(true) * 1000) . uniqid();
-                    $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . uniqid() . '.' . $extension;
+                    $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . uniqid() . '.' . $this->extension;
                 } else {
-                    $file = $this->file_name . '.' . $extension;
+                    $file = $this->file_name . '.' . $this->extension;
                 }
 
                 $this->file_target = $this->upload_folder . "/" . $file;
