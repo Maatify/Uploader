@@ -14,21 +14,27 @@ use Maatify\WebPConverter\WebPConverter;
 class UploadImageToWebP extends UploadImage
 {
 
-    protected function Upload(): array
+    protected function Upload(bool $convert = true): array
     {
         $file = parent::Upload();
         if(!empty($file['uploaded'])){
-            if(!empty($this->extension) && !in_array($this->extension, ['webp', 'gif'])) {
-                (new WebPConverter())->WebPConvert($this->file_target);
-                if (file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')) {
-                    unlink($this->file_target);
-                    $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['image'])) . '.webp';
+            if($convert){
+                if(!empty($this->extension) && $this->extension != 'webp') {
+                    (new WebPConverter())->WebPConvert($this->file_target);
+                    if (file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')) {
+                        unlink($this->file_target);
+                        $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['image'])) . '.webp';
 
-                    return $this->ReturnSuccess($this->file_target);
-                } else {
+                        return $this->ReturnSuccess($this->file_target);
+                    } else {
+                        return $file;
+                    }
+                }
+                else{
                     return $file;
                 }
-            }else{
+            }
+            else{
                 return $file;
             }
         }else{
