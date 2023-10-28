@@ -9,6 +9,8 @@
 
 namespace Maatify\Uploader\Images;
 
+use ErrorException;
+use Maatify\Logger\Logger;
 use Maatify\Uploader\Mime\Mime2extPDF;
 
 class UploadImage extends Mime2extPDF
@@ -59,6 +61,24 @@ class UploadImage extends Mime2extPDF
                     if ($size[1] > $this->max_height) {
                         return $this->ReturnError("your file Height cannot be more than $this->max_height");
                     }
+                }
+
+                set_error_handler(/**
+                 * @throws ErrorException
+                 */ function($errno, $errstr, $errfile, $errline) {
+                    // error was suppressed with the @-operator
+                    if (0 === error_reporting()) {
+                        return false;
+                    }
+
+                    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+                });
+
+                try {
+                    mkdir($this->file_target);
+                } catch (ErrorException $e) {
+                    Logger::RecordLog($e, 'uploader_error');
+                    return $this->ReturnError('Path Not Found');
                 }
 
                 move_uploaded_file($_FILES["file"]["tmp_name"], $this->file_target);
