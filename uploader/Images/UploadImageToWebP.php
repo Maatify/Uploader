@@ -17,8 +17,20 @@ class UploadImageToWebP extends UploadImage
     protected function Upload(bool $convert = true): array
     {
         $file = parent::Upload();
-        if(!empty($file['uploaded'])){
-            if($convert){
+        if(!empty($file['uploaded'])) {
+            if (! empty($this->extension)
+                && $this->extension != 'webp'
+                && ($convert || ($this->extension != 'gif'))
+            ) {
+                    (new WebPConverter())->WebPConvert($this->file_target);
+                    if (file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')) {
+                        unlink($this->file_target);
+                        $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['image'])) . '.webp';
+
+                        return $this->ReturnSuccess($this->file_target);
+                    }
+            }
+            /*if($convert){
                 if(!empty($this->extension) && $this->extension != 'webp') {
                     (new WebPConverter())->WebPConvert($this->file_target);
                     if (file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')) {
@@ -40,7 +52,9 @@ class UploadImageToWebP extends UploadImage
         }else{
             return $file;
         }
+*/
+        }
+        return $file;
     }
-
 
 }
