@@ -1,7 +1,7 @@
 {
     "name": "maatify/uploader",
     "description": "maatify.dev uploader handler, known by our team",
-    "version": "1.2.1000",
+    "version": "1.2.1001",
     "type": "library",
     "keywords": [
         "PHP",
@@ -53,5 +53,9 @@
             "Maatify\\WebPConverter\\": "webp-convert/",
             "Maatify\\Uploader\\": "uploader/"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+      "ext-gd": "*"
     }
 }

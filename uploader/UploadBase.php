@@ -17,15 +17,92 @@ abstract class UploadBase extends MimeValidate
 {
     protected int|string $uploaded_for_id;
     protected string $upload_folder;
-    protected string $file_target;
+    protected string $file_target = '';
     protected string $file_name;
     protected string $extension;
-    const MB = 1048576; // 1 MB in bytes
+
+
+    /**
+     * Set the upload folder.
+     *
+     * @param string $folder
+     * @return self
+     */
+    public function setUploadFolder(string $folder): self
+    {
+        $this->upload_folder = rtrim($folder, '/'); // Ensure no trailing slash.
+        return $this;
+    }
+
+
+    /**
+     * Set the upload For ID.
+     *
+     * @param int|string $uploaded_for_id
+     * @return self
+     */
+    public function setUploadForId(int|string $uploaded_for_id): self
+    {
+        $this->uploaded_for_id = $uploaded_for_id;
+        return $this;
+    }
+
+
+    /**
+     * Set the File Target.
+     *
+     * @param string $file_target
+     * @return self
+     */
+    public function setFileTarget(string $file_target): self
+    {
+        $this->file_target = $file_target;
+        return $this;
+    }
+
+
+    /**
+     * Get the File Target.
+     *
+     * @return string
+     */
+    public function getFileTarget(): string
+    {
+        return $this->file_target;
+    }
+
+
+    /**
+     * Set the File Target.
+     *
+     * @param string $file_name
+     * @return self
+     */
+    public function setFileName(string $file_name): self
+    {
+        $this->file_name = $file_name;
+        return $this;
+    }
+
+
+    /**
+     * Set the Extension.
+     *
+     * @param string $extension
+     * @return self
+     */
+    public function setExtension(string $extension): self
+    {
+        $this->extension = $extension;
+        return $this;
+    }
+
+
 
     abstract protected function allowedExtensions(): array;
     abstract protected function validateMime(string $mime): string;
 
-    protected function Upload(): array
+    public function Upload(): array
     {
         if (empty($_FILES["file"]) || !is_array($_FILES["file"]) || empty($_FILES["file"]["tmp_name"])) {
             return $this->ReturnError('Missing file post.');
@@ -74,8 +151,14 @@ abstract class UploadBase extends MimeValidate
         }
 
         // Move the uploaded file to the target directory and verify success
-        if (move_uploaded_file($_FILES["file"]["tmp_name"], $this->file_target)) {
-            return $this->ReturnSuccess($file);
+        if (defined('PHPUNIT_TEST') || getenv('PHPUNIT_TEST') === '1') {
+            if (copy($_FILES["file"]["tmp_name"], $this->file_target)) {
+                return $this->ReturnSuccess($file);
+            }
+        } else {
+            if (move_uploaded_file($_FILES["file"]["tmp_name"], $this->file_target)) {
+                return $this->ReturnSuccess($file);
+            }
         }
 
         return $this->ReturnError('Failed to move uploaded file.');
