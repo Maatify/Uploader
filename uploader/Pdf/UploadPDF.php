@@ -2,24 +2,24 @@
 /**
  * Created by Maatify.dev
  * User: Maatify.dev
- * Date: 2023-07-04
- * Time: 8:36 PM
+ * Date: 2024-10-27
+ * Time: 8:36 AM
  * https://www.Maatify.dev
  */
 
-namespace Maatify\Uploader\Images;
+namespace Maatify\Uploader\Pdf;
 
 use Maatify\Uploader\UploadBase;
 
-class UploadImage extends UploadBase
+class UploadPDF extends UploadBase
 {
     protected function allowedExtensions(): array
     {
-        return ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'];
+        return ['pdf'];
     }
 
     protected function validateMime(string $mime): string
     {
-        return $this->mime2extImage($mime);
+        return $this->mime2extPDF($mime);
     }
 }

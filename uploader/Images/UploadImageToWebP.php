@@ -13,9 +13,9 @@ use Maatify\Logger\Logger;
 use Maatify\WebPConverter\WebPConverter;
 use WebPConvert\Convert\Exceptions\ConversionFailedException;
 use WebPConvert\Exceptions\InvalidInput\InvalidImageTypeException;
+
 class UploadImageToWebP extends UploadImage
 {
-
     protected function Upload(bool $convert = true): array
     {
         $file = parent::Upload();
@@ -39,29 +39,6 @@ class UploadImageToWebP extends UploadImage
                 }
 
             }
-            /*if($convert){
-                if(!empty($this->extension) && $this->extension != 'webp') {
-                    (new WebPConverter())->WebPConvert($this->file_target);
-                    if (file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')) {
-                        unlink($this->file_target);
-                        $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['image'])) . '.webp';
-
-                        return $this->ReturnSuccess($this->file_target);
-                    } else {
-                        return $file;
-                    }
-                }
-                else{
-                    return $file;
-                }
-            }
-            else{
-                return $file;
-            }
-        }else{
-            return $file;
-        }
-*/
         }
         return $file;
     }

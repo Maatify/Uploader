@@ -2,24 +2,25 @@
 /**
  * Created by Maatify.dev
  * User: Maatify.dev
- * Date: 2023-07-04
- * Time: 8:36 PM
+ * Date: 2024-10-27
+ * Time: 8:30 AM
  * https://www.Maatify.dev
  */
 
-namespace Maatify\Uploader\Images;
+namespace Maatify\Uploader\Video;
 
 use Maatify\Uploader\UploadBase;
 
-class UploadImage extends UploadBase
+class UploadVideo extends UploadBase
 {
+
     protected function allowedExtensions(): array
     {
-        return ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'];
+        return ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'wmv', '3gp', 'mpeg', 'ogg', 'm4v'];
     }
 
     protected function validateMime(string $mime): string
     {
-        return $this->mime2extImage($mime);
+        return $this->mime2extVideo($mime);
     }
 }
