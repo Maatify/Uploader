@@ -20,6 +20,6 @@ class UploadAudio extends UploadBase
 
     protected function validateMime(string $mime): string
     {
-        return $this->mime2extVideo($mime);
+        return $this->mime2extAudio($mime);
     }
 }
