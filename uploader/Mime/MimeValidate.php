@@ -20,7 +20,7 @@ abstract class MimeValidate extends UploadFolderCreate
     const MB = 1048576; // 1 MB in bytes
 
     /**
-     * Set the Max Width.
+     * Set the maximum allowed width for an uploaded image.
      *
      * @param int $max_width
      * @return self
@@ -32,7 +32,7 @@ abstract class MimeValidate extends UploadFolderCreate
     }
 
     /**
-     * Set the Max Height.
+     * Set the maximum allowed height for an uploaded image.
      *
      * @param int $max_height
      * @return self
@@ -44,42 +44,16 @@ abstract class MimeValidate extends UploadFolderCreate
     }
 
     /**
-     * Set the Max Size.
+     * Set the maximum allowed size for an uploaded file in MB.
+     *  Converts the size to bytes for internal validation.
      *
      * @param int $max_size
+     *
      * @return self
      */
     public function setMaxSize(int $max_size): self
     {
         $this->max_size = $max_size * self::MB;
-        return $this;
-    }
-
-    /**
-     * Set the maximum allowed width for an uploaded image.
-     */
-    protected function MaxWidth(int $width): self
-    {
-        $this->max_width = $width;
-        return $this;
-    }
-
-    /**
-     * Set the maximum allowed height for an uploaded image.
-     */
-    protected function MaxHeight(int $height): self
-    {
-        $this->max_height = $height;
-        return $this;
-    }
-
-    /**
-     * Set the maximum allowed size for an uploaded file in MB.
-     * Converts the size to bytes for internal validation.
-     */
-    protected function MaxSize(int $max_size): self
-    {
-        $this->max_size = $max_size * 1024 * 1024; // Convert MB to bytes
         return $this;
     }
 
