@@ -16,7 +16,7 @@ use WebPConvert\Exceptions\InvalidInput\InvalidImageTypeException;
 
 class UploadImageToWebP extends UploadImage
 {
-    protected function Upload(bool $convert = true): array
+    public function Upload(bool $convert = true): array
     {
         $file = parent::Upload();
         if(!empty($file['uploaded'])) {
