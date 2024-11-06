@@ -31,7 +31,7 @@ class UploadImageToWebP extends UploadImage
                 }
                 if (file_exists((preg_replace('/\\.[^.\\s]{3,4}$/', '', $this->file_target)) . '.webp')) {
                     unlink($this->file_target);
-                    $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['image'])) . '.webp';
+                    $this->file_target = (preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['file'])) . '.webp';
 
                     return $this->ReturnSuccess($this->file_target);
                 }else{
