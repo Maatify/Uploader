@@ -4,8 +4,7 @@
          colors="true"
          executionOrder="depends,defects"
          beStrictAboutTestsThatDoNotTestAnything="true"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
-         cacheDirectory=".phpunit.cache">
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd">
 
     <!-- Test Suites -->
     <testsuites>
