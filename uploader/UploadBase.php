@@ -159,8 +159,8 @@ abstract class UploadBase extends MimeValidate
 
         // Generate a unique filename if none is provided
         if (empty($this->file_name)) {
-            $fileName = round(microtime(true) * 1000) . uniqid();
-            $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . uniqid() . '.' . $this->extension;
+            $fileName = round(microtime(true) * 1000) . bin2hex(random_bytes(16));
+            $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . bin2hex(random_bytes(16)) . '.' . $this->extension;
         } else {
             $file = $this->file_name . '.' . $this->extension;
         }
