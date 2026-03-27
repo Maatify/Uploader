@@ -176,7 +176,7 @@ abstract class UploadBase extends MimeValidate
         // Set the target path for the file upload
         $basePath = realpath($this->upload_folder);
         if ($basePath === false) {
-            return $this->returnError('Invalid file path.');
+            return $this->returnError('Invalid upload folder.');
         }
         $basePath = (string)$basePath;
         $target_path = $basePath . '/' . $file;
