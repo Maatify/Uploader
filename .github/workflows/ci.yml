@@ -52,13 +52,19 @@ jobs:
         run: composer dump-autoload --optimize
 
       # -------------------------------------------------
-      # 6) Run PHPStan (Level Max)
+      # 6) Run PHPUnit
+      # -------------------------------------------------
+      - name: Run PHPUnit
+        run: composer test
+
+      # -------------------------------------------------
+      # 7) Run PHPStan (Level Max)
       # -------------------------------------------------
       - name: Run PHPStan
         run: composer analyse
 
       # -------------------------------------------------
-      # 7) Syntax Check (extra safety)
+      # 8) Syntax Check (extra safety)
       # -------------------------------------------------
       - name: Lint PHP files
         run: |
