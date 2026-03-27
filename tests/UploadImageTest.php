@@ -1,6 +1,6 @@
 <?php
 
-namespace Maatify\Uploader\Tests;
+namespace Tests;
 
 /**
  * Created by Maatify.dev

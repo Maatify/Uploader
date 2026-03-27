@@ -13,11 +13,17 @@ use Maatify\Uploader\UploadBase;
 
 class UploadImage extends UploadBase
 {
+    /**
+     * @return array<int, string>
+     */
     protected function allowedExtensions(): array
     {
         return ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'];
     }
 
+    /**
+     *  @return string
+     */
     protected function validateMime(string $mime): string
     {
         return $this->mime2extImage($mime);

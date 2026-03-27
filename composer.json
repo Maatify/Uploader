@@ -1,7 +1,7 @@
 {
     "name": "maatify/uploader",
     "description": "maatify.dev uploader handler, known by our team",
-    "version": "5.0.1",
+    "version": "6.0.0",
     "type": "library",
     "keywords": [
         "PHP",
@@ -49,8 +49,29 @@
             "Maatify\\Uploader\\": "uploader/"
         }
     },
+
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+
     "require-dev": {
+        "ext-gd": "*",
+
         "phpunit/phpunit": "^9.6",
-      "ext-gd": "*"
+        "aws/aws-sdk-php": "^3.374",
+        "phpstan/phpstan": "^1.11"
+
+    },
+
+    "suggest": {
+        "aws/aws-sdk-php": "Required for DO Spaces or S3 storage support"
+    },
+
+
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse uploader webp-convert --level=max"
     }
 }

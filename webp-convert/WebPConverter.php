@@ -15,7 +15,12 @@ use WebPConvert\WebPConvert;
 
 class WebPConverter extends WebPConvert
 {
-    public function WebPConvert($source, $destination = '', $options = []): void
+    /**
+     * @param string $source
+     * @param string $destination
+     * @param array<string, mixed> $options
+     */
+    public function webPConvert(string $source, string $destination = '', array $options = []): void
     {
         try {
             if(empty($destination)) {
@@ -27,7 +32,11 @@ class WebPConverter extends WebPConvert
         }
     }
 
-    public function ServConverted($source, $destination): void
+    /**
+     * @param string $source
+     * @param string $destination
+     */
+    public function servConverted(string $source, string $destination): void
     {
         try {
             self::serveConverted($source, $destination, [

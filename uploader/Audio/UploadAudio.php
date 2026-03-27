@@ -13,11 +13,17 @@ use Maatify\Uploader\UploadBase;
 
 class UploadAudio extends UploadBase
 {
+    /**
+     * @return array<int, string>
+     */
     protected function allowedExtensions(): array
     {
         return ['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'wma', 'opus', 'aiff', 'amr', '3gp'];
     }
 
+    /**
+     *  @return string
+     */
     protected function validateMime(string $mime): string
     {
         return $this->mime2extAudio($mime);

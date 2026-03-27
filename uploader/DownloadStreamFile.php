@@ -15,12 +15,12 @@ abstract class DownloadStreamFile
     
     public function DownloadFile(): void
     {
-        if (!file_exists($this->file_path)) {
+        if (!file_exists((string)$this->file_path)) {
             header("Location: https://" . $_SERVER['HTTP_HOST'] . "/404.php");
         }else{
-            $file_type = strtolower(pathinfo($this->file_path, PATHINFO_EXTENSION));
+            $file_type = strtolower(pathinfo((string)$this->file_path, PATHINFO_EXTENSION));
             header('Content-Disposition: attachment;filename="' . $this->file_saved_name . '-' . time() . '.' . $file_type . '"');
-            $file = @fopen($this->file_path, "rb");
+            $file = @fopen((string)$this->file_path, "rb");
             if ($file) {
                 while (! feof($file)) {
                     print(fread($file, 1024 * 8));

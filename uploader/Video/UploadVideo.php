@@ -14,11 +14,17 @@ use Maatify\Uploader\UploadBase;
 class UploadVideo extends UploadBase
 {
 
+    /**
+     * @return array<int, string>
+     */
     protected function allowedExtensions(): array
     {
         return ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'wmv', '3gp', 'mpeg', 'ogg', 'm4v'];
     }
 
+    /**
+     *  @return string
+     */
     protected function validateMime(string $mime): string
     {
         return $this->mime2extVideo($mime);

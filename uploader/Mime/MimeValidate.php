@@ -61,15 +61,15 @@ abstract class MimeValidate extends UploadFolderCreate
      * Validates the MIME type against a list of allowed MIME types.
      * Returns the corresponding file extension if the MIME type is valid.
      *
-     * @param array $all_mimes List of valid MIME types mapped to their extensions.
+     * @param array<string, string|string[]> $all_mimes List of valid MIME types mapped to their extensions.
      * @param string $mime_type The MIME type of the uploaded file.
      * @return string The file extension corresponding to the MIME type, or an empty string if not valid.
      */
-    protected function MimeValidate(array $all_mimes, string $mime_type): string
+    protected function mimeValidate(array $all_mimes, string $mime_type): string
     {
         // Check if the MIME type directly matches any of the keys (extensions).
         if (($key = array_search($mime_type, $all_mimes, true)) !== false) {
-            return $key;
+            return (string)$key;
         }
 
         // Loop through the array to find the MIME type in the sub-array of MIME types.
@@ -87,9 +87,9 @@ abstract class MimeValidate extends UploadFolderCreate
      * Generates an error response for a failed file upload.
      *
      * @param string $description A message describing the error.
-     * @return array The structured error response.
+     * @return array{uploaded: int, description: string} The structured error response.
      */
-    protected function ReturnError(string $description): array
+    protected function returnError(string $description): array
     {
         return ['uploaded' => 0, 'description' => $description];
     }
@@ -98,14 +98,14 @@ abstract class MimeValidate extends UploadFolderCreate
      * Generates a success response for a successful file upload.
      *
      * @param string $file The name or path of the successfully uploaded file.
-     * @return array The structured success response.
+     * @return array{uploaded: int, file: string} The structured success response.
      */
-    protected function ReturnSuccess(string $file): array
+    protected function returnSuccess(string $file): array
     {
         return ['uploaded' => 1, 'file' => $file];
     }
 
-    protected function mime2extImage($mime): string
+    protected function mime2extImage(string $mime): string
     {
         $all_mimes = [
             'png'  => array('image/png', 'image/x-png'),
@@ -116,18 +116,18 @@ abstract class MimeValidate extends UploadFolderCreate
             'webp' => array('image/webp'),
         ];
 
-        return $this->MimeValidate($all_mimes, $mime);
+        return $this->mimeValidate($all_mimes, $mime);
     }
 
-    protected function mime2extPDF($mime): string
+    protected function mime2extPDF(string $mime): string
     {
         $all_mimes = [
             'pdf'	=>	array('application/pdf', 'application/force-download', 'application/x-download', 'binary/octet-stream'),
         ];
-        return $this->MimeValidate($all_mimes, $mime);
+        return $this->mimeValidate($all_mimes, $mime);
     }
 
-    protected function mime2extVideo($mime): string
+    protected function mime2extVideo(string $mime): string
     {
         $all_mimes = [
             'mp4'  => ['video/mp4', 'application/mp4'],
@@ -143,10 +143,10 @@ abstract class MimeValidate extends UploadFolderCreate
             'm4v'  => ['video/x-m4v'],
         ];
 
-        return $this->MimeValidate($all_mimes, $mime);
+        return $this->mimeValidate($all_mimes, $mime);
     }
 
-    protected function mime2extAudio($mime): string
+    protected function mime2extAudio(string $mime): string
     {
         $all_mimes = [
             'mp3'  => ['audio/mpeg', 'audio/mp3'],
@@ -162,6 +162,6 @@ abstract class MimeValidate extends UploadFolderCreate
             '3gp'  => ['audio/3gpp', 'video/3gpp'], // Includes video MIME for certain cases
         ];
 
-        return $this->MimeValidate($all_mimes, $mime);
+        return $this->mimeValidate($all_mimes, $mime);
     }
 }

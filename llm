@@ -1,0 +1,151 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+ob_start();
+
+//$src = __DIR__ . DIRECTORY_SEPARATOR . 'app';
+$src = __DIR__ . DIRECTORY_SEPARATOR . 'Uploader';
+$exclude = ['vendor', 'node_modules', '.git', '.DS_Store'];
+$filesByNamespace = [];
+
+if (is_dir($src)) {
+    $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($src, FilesystemIterator::SKIP_DOTS)
+    );
+
+    foreach ($iterator as $file) {
+        if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') {
+            continue;
+        }
+
+        $fullPath = $file->getPathname();
+        $relativePath = substr($fullPath, strlen(__DIR__) + 1);
+
+        $pathParts = explode(DIRECTORY_SEPARATOR, $relativePath);
+
+        foreach ($exclude as $ex) {
+            if (in_array($ex, $pathParts, true)) {
+                continue 2;
+            }
+        }
+
+        $h = fopen($fullPath, 'rb');
+        if ($h === false) {
+            continue;
+        }
+        $probe = fread($h, 1024);
+        fclose($h);
+        if ($probe !== false && strpos($probe, "\0") !== false) {
+            continue;
+        }
+
+        $code = file_get_contents($fullPath);
+        if ($code === false) {
+            continue;
+        }
+
+        $declarePos = strpos($code, 'declare(strict_types=1);');
+        if ($declarePos !== false) {
+            $code = substr($code, $declarePos);
+        } else {
+            $code = preg_replace('/\A\s*(?:\/\*\*.*?\*\/|\/\*.*?\*\/|\/\/.*?$|#.*?$)+/ms', '', $code);
+        }
+
+        $tokens = token_get_all($code);
+        $namespace = 'global';
+        $collectNs = false;
+        $nsBuf = '';
+        $lines = [];
+        $current = '';
+
+        foreach ($tokens as $token) {
+            if (is_array($token)) {
+                if ($token[0] === T_NAMESPACE) {
+                    $collectNs = true;
+                    $nsBuf = '';
+                }
+
+                if ($collectNs && ($token[0] === T_STRING || $token[0] === T_NS_SEPARATOR)) {
+                    $nsBuf .= $token[1];
+                } elseif ($collectNs) {
+                    if ($nsBuf !== '') {
+                        $namespace = $nsBuf;
+                    }
+                    $collectNs = false;
+                }
+
+                if ($token[0] === T_COMMENT) {
+                    continue;
+                }
+
+                if ($token[0] === T_DOC_COMMENT) {
+                    if (!preg_match('/@(param|return|throws|implements|extends|phpstan-|psalm-)/', $token[1])) {
+                        continue;
+                    }
+                }
+
+                $parts = explode("\n", $token[1]);
+                foreach ($parts as $i => $part) {
+                    if ($i > 0) {
+                        if ($current !== '') {
+                            $lines[] = rtrim($current);
+                        }
+                        $current = '';
+                    }
+                    $current .= $part;
+                }
+            } else {
+                if ($token === "\n") {
+                    if ($current !== '') {
+                        $lines[] = rtrim($current);
+                    }
+                    $current = '';
+                } else {
+                    $current .= $token;
+                }
+            }
+        }
+
+        if ($current !== '') {
+            $lines[] = rtrim($current);
+        }
+
+        $finalLines = [];
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+            $finalLines[] = preg_replace('/^\s+/', '  ', $line);
+        }
+
+        $final = implode("\n", $finalLines);
+        $filesByNamespace[$namespace][$relativePath] = $final;
+    }
+}
+
+ksort($filesByNamespace);
+
+$snapshot = "--- BEGIN_LLM_MESSAGE ---\n\n";
+
+foreach ($filesByNamespace as $ns => $files) {
+    ksort($files);
+    $snapshot .= "--- NAMESPACE: " . $ns . " ---\n";
+    foreach ($files as $path => $content) {
+        $snapshot .= "[file:" . $path . "]\n" . $content . "\n";
+    }
+    $snapshot .= "\n";
+}
+
+$snapshot .= "--- END_LLM_MESSAGE ---\n";
+
+echo $snapshot;
+
+$timestamp = date('Y-m-d_H-i-s');
+file_put_contents(
+        __DIR__ . DIRECTORY_SEPARATOR . 'src_llm_export_' . $timestamp . '.txt',
+        $snapshot
+);
+
+ob_end_flush();
+// php llm
