@@ -14,25 +14,34 @@ use Maatify\Uploader\Images\UploadImage;
 use PHPUnit\Framework\TestCase;
 
 define('PHPUNIT_TEST', true);
+
 class UploadImageTest extends TestCase
 {
     protected UploadImage $uploadImage;
+    protected string $uploadDir;
 
     protected function setUp(): void
     {
+        // Use a writable temp directory for CI safety
+        $this->uploadDir = sys_get_temp_dir() . '/uploader_tests';
+
+        if (!is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0777, true);
+        }
+
         $this->uploadImage = new UploadImage();
         $this->uploadImage
-            ->setUploadFolder(__DIR__ . '/uploads')
+            ->setUploadFolder($this->uploadDir)
             ->setUploadForId(1)
-            ->setMaxSize(2) // 2 MB size limit
-        ;
+            ->setMaxSize(2); // 2 MB size limit
     }
 
     protected function tearDown(): void
     {
-        // Cleanup the uploaded file if it exists
-        if (file_exists($this->uploadImage->getFileTarget())) {
-            unlink($this->uploadImage->getFileTarget());
+        $file = $this->uploadImage->getFileTarget();
+
+        if ($file && file_exists($file)) {
+            unlink($file);
         }
     }
 
