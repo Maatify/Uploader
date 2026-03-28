@@ -204,16 +204,9 @@ abstract class UploadBase extends MimeValidate
         }
 
         // Move the uploaded file to the target directory and verify success
-        if (defined('PHPUNIT_TEST') || getenv('PHPUNIT_TEST') === '1') {
-            if (copy($_FILES[$this->file_input_name]["tmp_name"], $this->file_target)) {
-                $this->pushToStorage($this->file_target, (string)$file);
-                return $this->returnSuccess((string)$file);
-            }
-        } else {
-            if (move_uploaded_file($_FILES[$this->file_input_name]["tmp_name"], $this->file_target)) {
-                $this->pushToStorage($this->file_target, (string)$file);
-                return $this->returnSuccess((string)$file);
-            }
+        if ($this->localFilesystem->moveUploadedFile($_FILES[$this->file_input_name]["tmp_name"], $this->file_target)) {
+            $this->pushToStorage($this->file_target, (string)$file);
+            return $this->returnSuccess((string)$file);
         }
 
         return $this->returnError('Failed to move uploaded file.');
@@ -221,28 +214,6 @@ abstract class UploadBase extends MimeValidate
 
     protected function createUploadFolder(): bool
     {
-        if (!file_exists($this->upload_folder)) {
-            set_error_handler(
-            /**
-             * @throws ErrorException
-             */
-                function ($errno, $errstr, $errfile, $errline) {
-                if (0 === error_reporting()) {
-                    return false;
-                }
-                throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-            });
-
-            try {
-                mkdir($this->upload_folder, 0777, true);
-                return true;
-            } catch (ErrorException $e) {
-                Logger::RecordLog($e, 'uploader_error');
-                return false;
-            } finally {
-                restore_error_handler();
-            }
-        }
-        return true;
+        return $this->localFilesystem->createUploadFolder($this->upload_folder);
     }
 }
