@@ -17,15 +17,15 @@ abstract class UploadFolderCreate
     {
         if (! file_exists($this->upload_folder)) {
             mkdir($this->upload_folder);
-            $f = @fopen($this->upload_folder . '/index.php', 'a+');
+            $f = fopen($this->upload_folder . '/index.php', 'a+');
             if ($f) {
-                @fputs(
+                fputs(
                     $f,
                     '<?php' . PHP_EOL
                     . 'header("Location: https://" . $_SERVER[\'HTTP_HOST\'] . "/404.php");'
                     . PHP_EOL
                 );
-                @fclose($f);
+                fclose($f);
             }
         }
     }
