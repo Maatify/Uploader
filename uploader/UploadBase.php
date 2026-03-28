@@ -12,6 +12,8 @@ namespace Maatify\Uploader;
 use ErrorException;
 use Maatify\Logger\Logger;
 use Maatify\Uploader\Mime\MimeValidate;
+use Maatify\Uploader\Services\FileValidator;
+use Maatify\Uploader\Services\LocalFilesystem;
 use Maatify\Uploader\Storage\StorageAdapterInterface;
 
 abstract class UploadBase extends MimeValidate
@@ -24,6 +26,24 @@ abstract class UploadBase extends MimeValidate
 
     protected ?StorageAdapterInterface $storageAdapter = null;
     protected bool $skipStoragePush = false;
+    protected string $file_input_name = 'file';
+
+    protected LocalFilesystem $localFilesystem;
+    protected FileValidator $fileValidator;
+
+    public function __construct(
+        ?LocalFilesystem $fs = null,
+        ?FileValidator $validator = null
+    ) {
+        $this->localFilesystem = $fs ?? new LocalFilesystem();
+        $this->fileValidator = $validator ?? new FileValidator();
+    }
+
+    public function setFileInputName(string $name): self
+    {
+        $this->file_input_name = $name;
+        return $this;
+    }
 
     public function setStorageAdapter(StorageAdapterInterface $adapter): static
     {
@@ -37,7 +57,7 @@ abstract class UploadBase extends MimeValidate
             return;
         }
         $this->storageAdapter->upload($localPath, $relativePath);
-        @unlink($localPath);
+        unlink($localPath);
     }
     /**
      * Set the upload folder.
@@ -130,17 +150,17 @@ abstract class UploadBase extends MimeValidate
      */
     public function upload(): array
     {
-        if (empty($_FILES["file"]) || !is_array($_FILES["file"]) || empty($_FILES["file"]["tmp_name"])) {
+        if (empty($_FILES[$this->file_input_name]) || !is_array($_FILES[$this->file_input_name]) || empty($_FILES[$this->file_input_name]["tmp_name"])) {
             return $this->returnError('Missing file post.');
         }
 
         // Check for any upload errors
-        if ($_FILES["file"]["error"] !== UPLOAD_ERR_OK) {
-            return $this->returnError('File upload error: ' . $_FILES["file"]["error"]);
+        if ($_FILES[$this->file_input_name]["error"] !== UPLOAD_ERR_OK) {
+            return $this->returnError('File upload error: ' . $_FILES[$this->file_input_name]["error"]);
         }
 
         // Get the MIME type of the uploaded file
-        $mime = mime_content_type((string)$_FILES["file"]["tmp_name"]);
+        $mime = mime_content_type((string)$_FILES[$this->file_input_name]["tmp_name"]);
         if ($mime === false) {
             return $this->returnError('Could not determine mime type.');
         }
@@ -152,8 +172,8 @@ abstract class UploadBase extends MimeValidate
 
         // Generate a unique filename if none is provided
         if (empty($this->file_name)) {
-            $fileName = round(microtime(true) * 1000) . uniqid();
-            $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . uniqid() . '.' . $this->extension;
+            $fileName = round(microtime(true) * 1000) . bin2hex(random_bytes(16));
+            $file = $this->uploaded_for_id . '_' . time() . "_" . $fileName . bin2hex(random_bytes(16)) . '.' . $this->extension;
         } else {
             $file = $this->file_name . '.' . $this->extension;
         }
@@ -161,9 +181,17 @@ abstract class UploadBase extends MimeValidate
         // Sanitize the filename using basename and preg_replace for security
         $file = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', basename($file));
 
+        // Create the upload folder if it doesn't exist
+        if (!$this->createUploadFolder()) {
+            return $this->returnError('Failed to create upload folder.');
+        }
+
         // Set the target path for the file upload
-        // Set the target path for the file upload
-        $basePath = (string)realpath($this->upload_folder);
+        $basePath = realpath($this->upload_folder);
+        if ($basePath === false) {
+            return $this->returnError('Invalid upload folder.');
+        }
+        $basePath = (string)$basePath;
         $target_path = $basePath . '/' . $file;
 
         if (! str_starts_with($target_path, $basePath)) {
@@ -173,26 +201,14 @@ abstract class UploadBase extends MimeValidate
         $this->file_target = $target_path;
 
         // Check the file size against the maximum allowed size (if defined)
-        if (!empty($this->max_size) && $_FILES["file"]["size"] > $this->max_size) {
+        if (!empty($this->max_size) && $_FILES[$this->file_input_name]["size"] > $this->max_size) {
             return $this->returnError("Your file is too large, cannot be more than " . ($this->max_size / self::MB) . " MB.");
         }
 
-        // Create the upload folder if it doesn't exist
-        if (!$this->createUploadFolder()) {
-            return $this->returnError('Failed to create upload folder.');
-        }
-
         // Move the uploaded file to the target directory and verify success
-        if (defined('PHPUNIT_TEST') || getenv('PHPUNIT_TEST') === '1') {
-            if (copy($_FILES["file"]["tmp_name"], $this->file_target)) {
-                $this->pushToStorage($this->file_target, (string)$file);
-                return $this->returnSuccess((string)$file);
-            }
-        } else {
-            if (move_uploaded_file($_FILES["file"]["tmp_name"], $this->file_target)) {
-                $this->pushToStorage($this->file_target, (string)$file);
-                return $this->returnSuccess((string)$file);
-            }
+        if ($this->localFilesystem->moveUploadedFile($_FILES[$this->file_input_name]["tmp_name"], $this->file_target)) {
+            $this->pushToStorage($this->file_target, (string)$file);
+            return $this->returnSuccess((string)$file);
         }
 
         return $this->returnError('Failed to move uploaded file.');
@@ -200,28 +216,6 @@ abstract class UploadBase extends MimeValidate
 
     protected function createUploadFolder(): bool
     {
-        if (!file_exists($this->upload_folder)) {
-            set_error_handler(
-            /**
-             * @throws ErrorException
-             */
-                function ($errno, $errstr, $errfile, $errline) {
-                if (0 === error_reporting()) {
-                    return false;
-                }
-                throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-            });
-
-            try {
-                mkdir($this->upload_folder, 0777, true);
-                return true;
-            } catch (ErrorException $e) {
-                Logger::RecordLog($e, 'uploader_error');
-                return false;
-            } finally {
-                restore_error_handler();
-            }
-        }
-        return true;
+        return $this->localFilesystem->createUploadFolder($this->upload_folder);
     }
 }
