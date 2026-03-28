@@ -12,6 +12,8 @@ namespace Maatify\Uploader;
 use ErrorException;
 use Maatify\Logger\Logger;
 use Maatify\Uploader\Mime\MimeValidate;
+use Maatify\Uploader\Services\FileValidator;
+use Maatify\Uploader\Services\LocalFilesystem;
 use Maatify\Uploader\Storage\StorageAdapterInterface;
 
 abstract class UploadBase extends MimeValidate
@@ -25,6 +27,15 @@ abstract class UploadBase extends MimeValidate
     protected ?StorageAdapterInterface $storageAdapter = null;
     protected bool $skipStoragePush = false;
     protected string $file_input_name = 'file';
+
+    protected ?LocalFilesystem $localFilesystem = null;
+    protected ?FileValidator $fileValidator = null;
+
+    public function __construct()
+    {
+        $this->localFilesystem = new LocalFilesystem();
+        $this->fileValidator = new FileValidator();
+    }
 
     public function setFileInputName(string $name): self
     {
