@@ -25,10 +25,6 @@ class UploadImageTest extends TestCase
         // Use a writable temp directory for CI safety
         $this->uploadDir = sys_get_temp_dir() . '/uploader_tests';
 
-        if (!is_dir($this->uploadDir)) {
-            mkdir($this->uploadDir, 0777, true);
-        }
-
         $this->uploadImage = new UploadImage();
         $this->uploadImage
             ->setUploadFolder($this->uploadDir)
