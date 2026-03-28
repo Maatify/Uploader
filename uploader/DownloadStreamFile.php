@@ -20,17 +20,17 @@ abstract class DownloadStreamFile
         }else{
             $file_type = strtolower(pathinfo((string)$this->file_path, PATHINFO_EXTENSION));
             header('Content-Disposition: attachment;filename="' . $this->file_saved_name . '-' . time() . '.' . $file_type . '"');
-            $file = @fopen((string)$this->file_path, "rb");
+            $file = fopen((string)$this->file_path, "rb");
             if ($file) {
                 while (! feof($file)) {
                     print(fread($file, 1024 * 8));
                     flush();
                     if (connection_status() != 0) {
-                        @fclose($file);
+                        fclose($file);
                         die();
                     }
                 }
-                @fclose($file);
+                fclose($file);
             }
         }
     }

@@ -25,10 +25,6 @@ class UploadImageTest extends TestCase
         // Use a writable temp directory for CI safety
         $this->uploadDir = sys_get_temp_dir() . '/uploader_tests';
 
-        if (!is_dir($this->uploadDir)) {
-            mkdir($this->uploadDir, 0777, true);
-        }
-
         $this->uploadImage = new UploadImage();
         $this->uploadImage
             ->setUploadFolder($this->uploadDir)
@@ -110,5 +106,28 @@ class UploadImageTest extends TestCase
         $this->assertArrayHasKey('uploaded', $result);
         $this->assertEquals(0, $result['uploaded']);
         $this->assertEquals('Missing file post.', $result['description']);
+    }
+
+    public function testExistingUploadFolder()
+    {
+        if (!is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0777, true);
+        }
+
+        // Simulate a valid PNG file upload
+        $_FILES['file'] = [
+            'name' => 'test.png',
+            'type' => 'image/png',
+            'tmp_name' => __DIR__ . '/test_files/small_image.png',
+            'error' => UPLOAD_ERR_OK,
+            'size' => 500 * 1024, // 500 KB
+        ];
+
+        $result = $this->uploadImage->Upload();
+
+        $this->assertArrayHasKey('uploaded', $result);
+        $this->assertEquals(1, $result['uploaded']);
+        $this->assertArrayHasKey('file', $result);
+        $this->assertFileExists($this->uploadImage->getFileTarget());
     }
 }
